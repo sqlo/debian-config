@@ -1,0 +1,54 @@
+Open Source
+
+For the most part, when you install Debian Stretch, the Nouveau drivers will also be installed. However, one exception here is the firmware blobs needed for the drivers to reach their full potential.
+
+Before you continue, you should make sure that your graphics card is supported by Nouveau. Since the Nouveau driver has to be reverse engineered, it tends to lag behind graphics card releases. You can check your card's support at https://nouveau.freedesktop.org/wiki/FeatureMatrix/.
+Firmware
+
+The first step in installing the firmware is to enable the contrib and non-free repositories in Debian. Open up /etc/apt/sources.list in you favorite text editor as root, and add contrib non-free to the end of every line after main. Save and exit. Now, run an system update.
+# apt update && apt upgrade
+Use apt instead of apt-get. It is the newer version, and tends to handle conflicts better.
+LLVM
+
+This next part isn't strictly necessary, but LLVM is used by some graphical packages, and it's best to ensure that you have the latest version available already installed, especially since there are older versions available in the repositories. At the time of this article, 3.9 is the latest release and a 4.0 release candidate is available. 3.9 should be the minimum version to install.
+# apt install llvm-3.9 clang-3.9
+Restart
+
+That's it. Now, restart your computer and test out your card to make sure everything is working.
+Proprietary
+
+The proprietary drivers are where NVIDIA cards truly shine. They may not be for everyone, but if you don't care about using closed software and just want your games to run, they are a great option.
+Debian Packages
+
+Debian does offer the proprietary NVIDIA drivers in the non-free repository. They aren't always the most up-to-date, but as of this article, the latest stable release is available in the Stretch repository.
+
+Start off by enabling both the contrib and non-free repositories as well as i386 support. To enable them, open /etc/apt/sources.list with your text editor of choice as root, and add contrib non-free after main in every one of the official Debian repository lines. Then, enable i386 by running the following command.
+# dpkg --add-architecture i386
+After the command is run, you can install both the non-free firmware and the NVIDIA driver packages needed.
+# apt install firmware-linux nvidia-driver nvidia-settings nvidia-xconfig
+When the install finishes, run the following to generate an Xorg configuration file.
+# nvidia-xconfig
+You can now restart your computer and enjoy your new drivers.
+Nvidia Installer
+
+This method is generally not recommended because it can get complicated and cause problems. That said, it does work, and it can be the only way to get the latest NVIDIA drivers installed.
+
+Like the with the Debian package install, you need to enable he non-free repo along with i386 support. Refer back to that section for exactly now to do that.
+
+Once you do have those repos enabled and your system updated, there are some packages that you need to install first.
+# apt install firmware-linux build-essential gcc-multilib
+# apt build-dep linux
+Now, you can head over to https://www.nvidia.com/Download/Find.aspx?lang=en-us, fill out the form there with your system information, and download your drivers. 
+
+The drivers will come in the form of a .run file. That file must be run as root with the X server disabled. The easiest way to do this in Debian is to stop you display manager with Systemd.
+# systemctl stop gdm3
+The above command assumes that you're using the default GDM display manager. If you aren't, just substitute the one that you are using. 
+
+Immediately after running the command, the graphical environment will stop, and you will be dropped into the terminal. Sign in as root, and cd to the directory where the driver installer downloaded. Once there, make sure it's executable.
+# cd /home/user/Downloads
+# chmod +x NVIDIA-Linux-x86_64-378.09.run
+This article uses the current beta version number, so make sure to use the actual name of the file that you downloaded. 
+
+You can now run the installer.
+# ./NVIDIA-Linux-x86_64-378.09.run
+You will now receive a series of prompts as the installer runs. It is recommended that you enable 32bit support when prompted. Unless the installer changes, it should also ask you to generate an Xorg configuration. Accept that too. If not, run nvidia-xconfig after the installer finishes. 
